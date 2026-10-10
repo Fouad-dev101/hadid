@@ -48,6 +48,8 @@ jobs:
           distribution: temurin
           java-version: 21
       - uses: android-actions/setup-android@v3
+        with:
+          packages: ''   # the runner already has the SDK; the default 'tools' package no longer exists
       - name: Install Android platform 36
         run: sdkmanager --install "platforms;android-36"
 
@@ -80,6 +82,7 @@ jobs:
         id: build
         working-directory: mobile/android
         run: |
+          chmod +x gradlew   # Windows zips lose the executable bit
           VNAME="${GITHUB_REF_NAME#v}"
           if [ -f keystore.properties ]; then
             ./gradlew assembleRelease -Pvcode="$GITHUB_RUN_NUMBER" -Pvname="$VNAME"
