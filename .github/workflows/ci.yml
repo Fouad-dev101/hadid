@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Go format, vet, build (real SQLite driver)
+        run: |
+          go mod tidy
+          test -z "$(gofmt -l .)"
+          go vet ./...
+          go build -o hadid-ci .
+
+      - name: Lift parser tests
+        run: node tests/parse_test.js
+
+      - name: Phone build tests
+        working-directory: mobile
+        run: |
+          npm ci
+          node tools/build-www.js
+          node tests/ui_flow.js
+          node tests/native_flow.js
+
+      - name: Phone backend matches the Go backend
+        working-directory: mobile
+        run: bash tools/ci-parity.sh

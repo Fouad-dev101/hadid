@@ -1,0 +1,20 @@
+{
+  "appId": "app.hadid.log",
+  "appName": "Hadid",
+  "webDir": "www",
+  "backgroundColor": "#0f0f0e",
+  "android": {
+    "allowMixedContent": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 600,
+      "backgroundColor": "#0f0f0e",
+      "showSpinner": false
+    },
+    "SystemBars": {
+      "insetsHandling": "native",
+      "style": "DARK"
+    }
+  }
+}

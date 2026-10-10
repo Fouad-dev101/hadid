@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Hadid</string>
+    <string name="title_activity_main">Hadid</string>
+    <string name="package_name">app.hadid.log</string>
+    <string name="custom_url_scheme">app.hadid.log</string>
+</resources>

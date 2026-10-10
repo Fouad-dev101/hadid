@@ -1,0 +1,37 @@
+# build output
+build/
+*.exe
+*.ico
+
+# local data (never commit your training log)
+*.db
+*.db-wal
+*.db-shm
+*.csv
+backups/
+profile/
+profile-demo/
+
+# editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# phone build
+mobile/node_modules/
+mobile/www/
+mobile/dist/
+mobile/android/.gradle/
+mobile/android/build/
+mobile/android/app/build/
+mobile/android/local.properties
+mobile/android/app/src/main/assets/public/
+mobile/android/app/src/main/assets/capacitor.config.json
+mobile/android/app/src/main/assets/capacitor.plugins.json
+mobile/android/keystore.properties
+*.jks
+*.keystore
+
+# CI binary
+hadid-ci

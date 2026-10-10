@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hadid · حديد</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23ff4d1a'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%230d0d0c'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<aside class="side">
+  <a class="brand" href="#/home" aria-label="Hadid home"><span class="mark"></span><b>HADID</b><i>حديد</i></a>
+  <nav class="nav">
+    <a href="#/home" data-nav="home"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</a>
+    <a href="#/log" data-nav="log"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Log today</a>
+    <a href="#/live" data-nav="live"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg>Live</a>
+    <a href="#/history" data-nav="history"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>History</a>
+    <a href="#/prs" data-nav="prs"><svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/></svg>PR wall</a>
+    <a href="#/plates" data-nav="plates"><svg viewBox="0 0 24 24"><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="6" y="6" width="3" height="12" rx="1"/><rect x="15" y="6" width="3" height="12" rx="1"/></svg>Plates</a>
+    <span class="sep"></span>
+    <a href="#/library" data-nav="library"><svg viewBox="0 0 24 24"><path d="M5 4h4v16H5zM11 4h4v16h-4zM17 6l3 .8-3.6 13.2-3-.8z"/></svg>Library</a>
+    <a href="#/routine" data-nav="routine"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Routine</a>
+    <a href="#/settings" data-nav="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>Settings</a>
+  </nav>
+  <div id="demo-badge" class="demo" hidden>DEMO DATA</div>
+</aside>
+<main id="view"></main>
+
+<div id="rest" class="rest" role="timer" aria-live="off">
+  <svg viewBox="0 0 72 72" class="rt-ring"><circle cx="36" cy="36" r="30" class="rt-track"/><circle cx="36" cy="36" r="30" class="rt-arc" transform="rotate(-90 36 36)"/></svg>
+  <div class="rt-txt"><b class="rt-time">0:00</b><span class="rt-label">Rest</span></div>
+  <button class="icon" data-act="rest-add" aria-label="Add 15 seconds">+15</button>
+  <button class="icon" data-act="rest-stop" aria-label="Stop timer">×</button>
+</div>
+<div id="toasts" aria-live="polite"></div>
+<div id="modal"></div>
+<canvas id="fx"></canvas>
+
+<script src="/js/parse.js"></script>
+<script src="/js/lib.js"></script>
+<script src="/js/app.js"></script>
+<script src="/js/views.js"></script>
+<script>boot();</script>
+</body>
+</html>

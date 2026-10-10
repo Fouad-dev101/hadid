@@ -1,0 +1,120 @@
+name: Release
+
+# Push a tag like v0.1.0 and GitHub builds the Windows app and the Android APK,
+# then attaches both to a new Release page. Nothing to install on your PC.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache: false
+      - name: Build hadid.exe (pure Go, cross-compiled)
+        run: |
+          go mod tidy
+          GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -trimpath -ldflags "-H windowsgui -s -w" -o hadid.exe .
+      - name: Package
+        run: |
+          mkdir Hadid
+          cp hadid.exe Hadid/
+          cp release/Install-Hadid.bat Hadid/
+          cp release/README.txt Hadid/
+          zip -r Hadid-windows-x64.zip Hadid
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: Hadid-windows-x64.zip
+
+  android:
+    runs-on: ubuntu-latest
+    outputs:
+      signed: ${{ steps.build.outputs.signed }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: android-actions/setup-android@v3
+      - name: Install Android platform 36
+        run: sdkmanager --install "platforms;android-36"
+
+      - name: Build the web app and sync Capacitor
+        working-directory: mobile
+        run: |
+          npm ci
+          node tools/build-www.js
+          npx cap sync android
+
+      - name: Signing key (only if you added the secrets)
+        env:
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          if [ -n "$KS_B64" ] && [ -n "$KS_PASS" ]; then
+            echo "$KS_B64" | base64 -d > mobile/android/hadid-release.jks
+            {
+              echo "storeFile=hadid-release.jks"
+              echo "storePassword=$KS_PASS"
+              echo "keyAlias=hadid"
+              echo "keyPassword=$KS_PASS"
+            } > mobile/android/keystore.properties
+            echo "Signing key found: building a signed release."
+          else
+            echo "::warning::No signing key set. Building a TEST apk that cannot be updated later. See docs/RELEASING.md."
+          fi
+
+      - name: Build the APK
+        id: build
+        working-directory: mobile/android
+        run: |
+          VNAME="${GITHUB_REF_NAME#v}"
+          if [ -f keystore.properties ]; then
+            ./gradlew assembleRelease -Pvcode="$GITHUB_RUN_NUMBER" -Pvname="$VNAME"
+            cp app/build/outputs/apk/release/app-release.apk ../Hadid.apk
+            echo "signed=true" >> "$GITHUB_OUTPUT"
+          else
+            ./gradlew assembleDebug -Pvcode="$GITHUB_RUN_NUMBER" -Pvname="$VNAME"
+            cp app/build/outputs/apk/debug/app-debug.apk ../Hadid-test.apk
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android
+          path: |
+            mobile/Hadid.apk
+            mobile/Hadid-test.apk
+          if-no-files-found: error
+
+  publish:
+    needs: [windows, android]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SIGNED: ${{ needs.android.outputs.signed }}
+        run: |
+          ls -la dist
+          if [ "$SIGNED" = "true" ]; then
+            gh release create "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" --title "Hadid $GITHUB_REF_NAME" --generate-notes
+          else
+            gh release create "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" --title "Hadid $GITHUB_REF_NAME (test build)" --prerelease \
+              --notes "Test build: the APK is not signed with a permanent key, so it cannot be updated in place. Add the signing secrets (docs/RELEASING.md) before sharing it widely."
+          fi
